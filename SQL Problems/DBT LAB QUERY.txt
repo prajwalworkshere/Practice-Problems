@@ -1,0 +1,202 @@
+1. Create minimum 5 tables without any Key constraints(5)
+CREATE DATABASE Restaurant;
+USE Restaurant;
+
+CREATE TABLE customers(
+c_id INT NOT NULL UNIQUE AUTO_INCREMENT,
+c_name VARCHAR(20) NOT NULL,
+c_email VARCHAR(20) NOT NULL UNIQUE,
+c_phone CHAR(10) NOT NULL UNIQUE
+);
+CREATE TABLE category(
+category_id INT NOT NULL UNIQUE,
+category_name VARCHAR(20)
+);
+
+CREATE TABLE dishes(
+dish_id INT UNIQUE NOT NULL,
+dish_name VARCHAR(20),
+category_id INT,
+dish_price DECIMAL(10,2) 
+);
+
+CREATE TABLE orders(
+order_id INT ,
+customer_id INT ,
+order_date DATE,
+total_amount DECIMAL(10,2)
+);
+
+CREATE TABLE ordersDetails(
+orderdetails_id INT ,
+order_id INT ,
+dish_id INT,
+total_amount DECIMAL(10,2)
+);
+
+
+
+-- 2. Add Primary Key to each table(2)
+ALTER TABLE customers
+ADD PRIMARY KEY (c_id);
+
+ALTER TABLE category
+ADD PRIMARY KEY (category_id);
+
+ALTER TABLE dishes
+ADD PRIMARY KEY (dish_id);
+
+ALTER TABLE orders
+ADD PRIMARY KEY (order_id);
+
+ALTER TABLE ordersDetails
+ADD PRIMARY KEY (orderdetails_id);
+
+-- 3. Insert minimum five records in each of the table
+
+INSERT INTO customers VALUES
+(1,'prajwal', 'prajwal@gmail.com','8828274971'),
+( 2,'pranav', 'pranav@gmail.com','8828274972'),
+( 3,'rutuja', 'rutuja@gmail.com','8828274973'),
+(4,'mahendra', 'mahendra@gmail.com','8828274974'),
+(5,'sanjeevani', 'sanjeevani@gmail.com','8828274975');
+
+INSERT INTO category(category_id,category_name) VALUES
+(1,'chinese'),
+(2,'indian'),
+(3,'italian'),
+(4,'american'),
+(5,'japnese');
+
+INSERT INTO dishes (dish_id,dish_name,category_id,dish_price) VALUES
+(1,'puranpoli',2,500),
+(2,'noodles',1,400),
+(3,'momos',3,500),
+(4,'chicken',4,5080),
+(5,'sushi',5,560);
+
+INSERT INTO orders (order_id,customer_id ,order_date,total_amount)VALUES
+(1,2,'2026-10-26',500),
+(2,1,'2026-10-25',700),
+(3,3,'2026-10-03',800),
+(4,4,'2026-10-30',900),
+(5,5,'2026-10-10',560);
+
+
+INSERT INTO ordersDetails (orderdetails_id,order_id ,dish_id,total_amount)
+VALUES
+(1,2,3,5000),
+(2,4,2,5600),
+(3,3,1,5600),
+(4,2,4,1200),
+(5,1,5,1650);
+
+-- 4. Connect atleast 3 tables using Foreign Key(2) 
+
+ALTER TABLE dishes
+ADD FOREIGN KEY (category_id) REFERENCES category(category_id);
+
+ALTER TABLE orders
+ADD FOREIGN KEY (customer_id) REFERENCES customers(c_id);
+
+ALTER TABLE ordersDetails
+ADD FOREIGN KEY (order_id) REFERENCES orders(order_id);
+
+ALTER TABLE ordersDetails
+ADD FOREIGN KEY (dish_id) REFERENCES dishes(dish_id);
+
+5. Write an appropriate command to Use of Where with OR clause (2)
+SELECT dish_name,dish_price
+FROM dishes
+WHERE dish_price> 300 OR category_id =3;
+
+6. .Write an SQL query to display the medicine name, category, price, and rank of each 
+medicine based on price in descending order using the RANK() window function.(2) 
+
+SELECT dish_name,category_id,dish_price
+    	RANK() OVER (ORDER BY dish_price DESC) AS Rank
+FROM dishes;
+
+7 .Write a command for appropriate and logical use of Group By clause(2)
+SELECT dish_id ,SUM(total_amount)
+FROM ordersDetails
+GROUP BY dish_id;	
+
+SELECT customer_id , SUM(total_amount) Total_Purchase
+FROM orders
+GROUP BY customer_id;
+
+8. Write a query to show the name of costliest dish along with its cost(2)
+
+SELECT dish_name, dish_price
+FROM dishes
+WHERE dish_price =(SELECT MAX(dish_price) FROM dishes);
+
+9. Create ONE simple view using any of the created table and update the data
+from view to reflect in base table (2)
+
+CREATE OR REPLACE VIEW ChangeDishPrice AS
+SELECT * FROM dishes;
+
+UPDATE ChangeDishPrice
+SET dish_price=4000
+WHERE dish_id=4;
+
+
+10. Write a command to use LEFT JOIN (2)
+SELECT o.order_id, c.c_name
+FROM orders AS o
+LEFT JOIN customers AS c
+ON o.customer_id=c.c_id;
+
+
+
+11. Create the temporary table showing only menu of 'Chinese'. How to
+remove this table permanently? (2)
+
+CREATE TEMPORARY TABLE ChineseMenu AS 
+SELECT * FROM dishes
+WHERE category_id=1;
+
+ DROP TABLE ChineseMenu;
+
+13. Write a program to display first 5 even numbers using any one of the
+looping structure of MySQL(3)
+
+DELIMITER //
+CREATE PROCEDURE EVEN_NOS()
+BEGIN
+	DECLARE tempnum INT DEFAULT 1;
+	WHILE  tempnum <=5 DO
+		SELECT tempnum*2 AS EVENNUMBER;
+		SET tempnum=tempnum+1;
+	END WHILE;
+END//
+DELIMITER ;
+
+14. Create a stored function name DISC_CALC that takes two parameters:-
+ORIGINAL_PRICE and DISCOUNT_PERCENTAGE. The function should calculate
+the discounted price based on the original price and the discount percentage.
+The function should return the discounted price.(3)
+
+DELIMITER //
+CREATE FUNCTION DISC_CALC(ORIGINAL_PRICE DECIMAL(10,2),DISCOUNT_PERCENTAGE DECIMAL(10,2))
+RETURNS INT
+DETERMINISTIC
+NO SQL
+BEGIN
+	DECLARE finalprice DECIMAL(10,2);
+	SET finalprice= ORIGINAL_PRICE-(ORIGINAL_PRICE*(DISCOUNT_PERCENTAGE/100));
+	RETURN finalprice;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
